@@ -19,8 +19,7 @@ public class MainActivity extends AppCompatActivity {
         gotoWatch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.print("click");
-                Intent intent = new Intent(MainActivity.this, WatchActivity.class);
+                Intent intent = new Intent(MainActivity.this, IdentifyActivity.class);
                 startActivity(intent);
             }
         });

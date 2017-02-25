@@ -133,6 +133,7 @@ public class WatchActivity extends AppCompatActivity {
             Log.e(TAG, "onOpened");
             cameraDevice = camera;
             createCameraPreview();
+            //takePicture();
         }
 
         @Override
@@ -172,6 +173,10 @@ public class WatchActivity extends AppCompatActivity {
         }
     }
 
+    Image prevImg;
+    Image currImg;
+    byte[] prevBytes;
+    byte[] currBytes;
     protected void takePicture() {
         if (null == cameraDevice) {
             Log.e(TAG, "cameraDevice is null");
@@ -204,13 +209,31 @@ public class WatchActivity extends AppCompatActivity {
             ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader reader) {
+                    System.out.println("IMAGE!!!!!!!!!");
                     Image image = null;
                     try {
                         image = reader.acquireLatestImage();
+                        currImg = image;
                         ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-                        byte[] bytes = new byte[buffer.capacity()];
-                        buffer.get(bytes);
-                        save(bytes);
+                        buffer = image.getPlanes()[0].getBuffer();
+                        currBytes = new byte[buffer.capacity()];
+                        buffer.get(currBytes);
+
+                        if(prevImg != null && currImg != null) {
+
+                            int diffValue = 0;
+                            for(int i = 0; i < prevBytes.length && i < currBytes.length; i++) {
+                                diffValue += Math.abs(prevBytes[i] - currBytes[i]);
+                            }
+                            Log.d(TAG, "diffValue" + diffValue);
+                        }
+                        prevImg = currImg;
+                        prevBytes = currBytes;
+                        //ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+                        //byte[] bytes = new byte[buffer.capacity()];
+                        //buffer.get(bytes);
+                        //save(bytes);
+                        save(new byte[]{});
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
@@ -265,19 +288,23 @@ public class WatchActivity extends AppCompatActivity {
     Thread getFrames = new Thread(){
       @Override
       public void run() {
-          runOnUiThread(new Runnable() {
-              @Override
-              public void run() {
-                  if(WatchActivity.this.cameraDevice == null)
-                      return;
-                  takePicture();
-                  try {
-                      Thread.sleep(1000/12);
-                  } catch (InterruptedException e) {
-                      e.printStackTrace();
+          while(true) {
+              if (getFrames.isInterrupted())
+                  return;
+              if (WatchActivity.this.cameraDevice == null)
+                  continue;
+              runOnUiThread(new Runnable() {
+                  @Override
+                  public void run() {
+                      takePicture();
+                      try {
+                          Thread.sleep((int)(1000 / 0.5));
+                      } catch (InterruptedException e) {
+                          e.printStackTrace();
+                      }
                   }
-              }
-          });
+              });
+          }
       }
     };
 
@@ -298,7 +325,7 @@ public class WatchActivity extends AppCompatActivity {
                     }
                     // When the session is ready, we start displaying the preview.
                     cameraCaptureSessions = cameraCaptureSession;
-                    updatePreview();
+                    //updatePreview();
                 }
 
                 @Override
