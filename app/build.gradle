@@ -17,6 +17,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+    }
+    useLibrary 'org.apache.http.legacy'
 }
 
 dependencies {
@@ -24,5 +28,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:25.1.0'
     compile 'com.google.android.gms:play-services-appindexing:8.1.0'
+    compile 'org.apache.httpcomponents:httpclient:4.2.6'
+    compile 'org.apache.httpcomponents:httpmime:4.2.6'
     compile project(':openCVLibrary320')
 }
